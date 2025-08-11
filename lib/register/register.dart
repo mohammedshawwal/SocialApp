@@ -18,7 +18,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
+
   bool _obscurePassword = true;
+
 
   void _goToLogin() {
     Navigator.pushReplacement(
@@ -175,6 +177,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     email: _emailController.text,
                                     password: _passwordController.text,
                                     phone: _phoneController.text,
+                                    isEmailVarivied: false,
+
+
+
                                   );
                                 }
                               },

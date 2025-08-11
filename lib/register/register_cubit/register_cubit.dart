@@ -15,6 +15,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
     required String email,
     required String password,
     required String phone,
+    required bool isEmailVarivied,
   }) {
     emit(RegisterLoadingState());
 
@@ -26,6 +27,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
         email: email,
         phone: phone,
         uId: value.user!.uid,
+        isEmailVarivied: isEmailVarivied,
       );
     }).catchError((error) {
       emit(RegisterError(error.toString()));
@@ -37,12 +39,17 @@ class RegisterCubit extends Cubit<RegisterStates> {
     required String email,
     required String phone,
     required String uId,
+    required bool isEmailVarivied,
   }) {
     CreateUserModel model = CreateUserModel(
       name: name,
       email: email,
       phone: phone,
       uId: uId,
+      image: 'https://i.postimg.cc/qqtQN3zn/Whats-App-Image-2025-08-11-at-11-00-45.jpg',
+      bio : 'write yor bio',
+      cover: 'https://i.postimg.cc/FsyC30Tg/Whats-App-Image-2025-08-11-at-11-03-27.jpg',
+
     );
 
     FirebaseFirestore.instance
