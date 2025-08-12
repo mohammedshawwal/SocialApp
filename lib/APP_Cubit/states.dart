@@ -58,7 +58,7 @@ class PostImageErrorState extends SocialAppStates{}
 
 //post  states
 
-
+class GetPostLoadingState extends SocialAppStates{}
 class GetPostSuccessState extends SocialAppStates{}
 class GetPostErrorState extends SocialAppStates{}
 
@@ -69,5 +69,25 @@ class SocialGetAllUsersErrorState extends SocialAppStates{
   final String error;
 
   SocialGetAllUsersErrorState(this.error);
+}
+
+
+class PostLikeSuccessState extends SocialAppStates{}
+
+class PostLikeErrorState extends SocialAppStates{
+  final String error;
+
+  PostLikeErrorState(this.error);
+}
+
+
+
+
+class PostCommentSuccessState extends SocialAppStates{}
+
+class PostCommentErrorState extends SocialAppStates{
+  final String error;
+
+  PostCommentErrorState(this.error);
 }
 

@@ -64,22 +64,15 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
     }
   }
 
-  List<String> Titels = [
-    'home',
-    'chats',
-    'New Post',
-    'Users',
-    'Settings',
-  ];
+  List<String> Titels = ['home', 'chats', 'New Post', 'Users', 'Settings'];
 
   File? profileImage;
   File? coverImage;
   File? postImage;
 
   Future<void> getProfileImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
+    FilePickerResult? result =
+    await FilePicker.platform.pickFiles(type: FileType.image);
     if (result != null && result.files.single.path != null) {
       profileImage = File(result.files.single.path!);
       emit(GetProfileImageSuccessState());
@@ -89,9 +82,8 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   }
 
   Future<void> getCoverImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
+    FilePickerResult? result =
+    await FilePicker.platform.pickFiles(type: FileType.image);
     if (result != null && result.files.single.path != null) {
       coverImage = File(result.files.single.path!);
       emit(GetCoverImageSuccessState());
@@ -101,9 +93,8 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   }
 
   Future<void> getPostImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
+    FilePickerResult? result =
+    await FilePicker.platform.pickFiles(type: FileType.image);
     if (result != null && result.files.single.path != null) {
       postImage = File(result.files.single.path!);
       emit(PostImageSuccessState());
@@ -170,7 +161,6 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   void createPost({
     required String dateTime,
     required String text,
-
   }) {
     if (model == null) {
       emit(CreatePostError('User data not loaded'));
@@ -198,7 +188,8 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
     }
   }
 
-  void _createPostInFirestore(String dateTime, String text, String postImageUrl) {
+  void _createPostInFirestore(
+      String dateTime, String text, String postImageUrl) {
     CreatePostModel postModel = CreatePostModel(
       dateTime: dateTime,
       Text: text,
@@ -212,7 +203,7 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
         .collection('posts')
         .add(postModel.toMap())
         .then((value) {
-      postImage = postImage;
+      postImage = null;
       emit(CreatePostSuccess());
     }).catchError((error) {
       emit(CreatePostError(error.toString()));
@@ -220,34 +211,162 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   }
 
   List<CreatePostModel> posts = [];
+  List<String> postId = [];
+  List<int> likes = [];
+  List<bool> isLiked = [];
+  Map<String, List<CreateUserModel>> postLikers = {};
+  Map<String, List<CreateUserModel>> comments = {};
 
   void getPosts() {
+    emit(GetPostLoadingState());
+
     FirebaseFirestore.instance
         .collection('posts')
         .orderBy('dateTime', descending: true)
         .snapshots()
         .listen((value) {
       posts.clear();
-      value.docs.forEach((element) {
+      postId.clear();
+      likes.clear();
+      isLiked.clear();
+      postLikers.clear();
+      comments.clear();
+
+      for (var element in value.docs) {
+        final id = element.id;
+        postId.add(id);
         posts.add(CreatePostModel.fromJson(element.data()));
-      });
+
+        FirebaseFirestore.instance
+            .collection('posts')
+            .doc(id)
+            .collection('likes')
+            .snapshots()
+            .listen((likesSnapshot) {
+          int likeCount = likesSnapshot.docs.length;
+          bool liked = likesSnapshot.docs.any((doc) => doc.id == model?.uId);
+
+          int index = postId.indexOf(id);
+          if (index != -1) {
+            if (likes.length > index) {
+              likes[index] = likeCount;
+              isLiked[index] = liked;
+            } else {
+              likes.add(likeCount);
+              isLiked.add(liked);
+            }
+
+
+            List<CreateUserModel> likersList = [];
+            for (var doc in likesSnapshot.docs) {
+              FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(doc.id)
+                  .get()
+                  .then((userDoc) {
+                if (userDoc.exists) {
+                  likersList.add(CreateUserModel.fromJson(userDoc.data()!));
+                  postLikers[id] = likersList;
+                  emit(PostLikeSuccessState());
+                }
+              });
+            }
+          }
+        });
+      }
+
       emit(GetPostSuccessState());
     }, onError: (error) {
       emit(GetPostErrorState());
     });
   }
 
+  void getLikes(String postId) {
+    final userId = model?.uId;
+
+    if (userId == null) {
+      emit(PostLikeErrorState('User ID is null'));
+      return;
+    }
+
+    final likeRef = FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(userId);
+
+    likeRef.get().then((doc) {
+      if (doc.exists) {
+        likeRef.delete().then((_) {
+          emit(PostLikeSuccessState());
+        }).catchError((error) {
+          emit(PostLikeErrorState(error.toString()));
+        });
+      } else {
+        likeRef.set({'likes': true}).then((_) {
+          emit(PostLikeSuccessState());
+        }).catchError((error) {
+          emit(PostLikeErrorState(error.toString()));
+        });
+      }
+    });
+  }
+
+  void addComment({
+    required String postId,
+    required String text,
+    required String dateTime,
+  }) {
+    if (model == null) return;
+
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .add({
+      'uId': model!.uId,
+      'name': model!.name,
+      'image': model!.image,
+      'text': text,
+      'dateTime': dateTime,
+    }).then((value) {
+      emit(PostCommentSuccessState());
+    }).catchError((error) {
+      emit(PostCommentErrorState(error.toString()));
+    });
+  }
+
+  Map<String, List<Map<String, dynamic>>> postComments = {};
+
+  void getComments(String postId) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .orderBy('dateTime', descending: true)
+        .snapshots()
+        .listen((value) {
+      List<Map<String, dynamic>> commentsList = [];
+
+      for (var element in value.docs) {
+        commentsList.add(element.data());
+      }
+
+      postComments[postId] = commentsList;
+      emit(PostCommentSuccessState());
+    });
+  }
+
+
+
   List<CreateUserModel> allUsers = [];
+
   void getAllUsers() {
     allUsers = [];
     emit(SocialGetAllUsersLoadingState());
 
-    FirebaseFirestore.instance
-        .collection('users')
-        .get()
-        .then((value) {
+    FirebaseFirestore.instance.collection('users').get().then((value) {
       for (var element in value.docs) {
-
         if (element.id != model!.uId) {
           allUsers.add(CreateUserModel.fromJson(element.data()));
         }
@@ -257,5 +376,4 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
       emit(SocialGetAllUsersErrorState(error.toString()));
     });
   }
-  }
-
+}
