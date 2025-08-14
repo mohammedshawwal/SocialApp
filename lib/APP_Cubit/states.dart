@@ -83,11 +83,30 @@ class PostLikeErrorState extends SocialAppStates{
 
 
 
-class PostCommentSuccessState extends SocialAppStates{}
+class AddPostCommentSuccessState extends SocialAppStates{}
 
-class PostCommentErrorState extends SocialAppStates{
+class AddPostCommentErrorState extends SocialAppStates{
   final String error;
 
-  PostCommentErrorState(this.error);
+  AddPostCommentErrorState(this.error);
+}
+
+class GetPostCommentSuccessState extends SocialAppStates{}
+
+
+
+class SendMassageSuccessState extends SocialAppStates{}
+
+class SendMassageErrorState extends SocialAppStates{
+  final String error;
+
+  SendMassageErrorState(this.error);
+}
+
+
+class GetMassageSuccessState extends SocialAppStates{}
+
+class SocialGetMessagesLoadingState extends SocialAppStates{
+
 }
 

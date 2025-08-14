@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (BuildContext context) =>
-          SocialAppCubit()..getUserData()..getPosts()..getAllUsers(),
+          SocialAppCubit()..getUserData()..getPosts(),
         ),
       ],
       child: MaterialApp(
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           // ),
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.white,
-            titleTextStyle: TextStyle(color: Colors.blue, fontWeight:FontWeight.bold,fontSize: 30),
+            titleTextStyle: TextStyle(color: Colors.blue, fontWeight:FontWeight.bold,fontSize: 20),
             iconTheme: IconThemeData(color: Colors.blue),
             elevation: 0
           ),

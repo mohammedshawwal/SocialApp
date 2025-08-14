@@ -8,6 +8,7 @@ import 'package:shop_pix/APP_Cubit/states.dart';
 import 'package:shop_pix/App_Screens/Chats/Chats.dart';
 import 'package:shop_pix/App_Screens/New_feeds/newfeed.dart';
 import 'package:shop_pix/App_Screens/Settings/Setting.dart';
+import 'package:shop_pix/models/massegemodel.dart';
 import '../App_Screens/New_Post/New_post.dart';
 import '../App_Screens/Users/Users.dart';
 import '../models/CreatePost_model.dart';
@@ -15,7 +16,7 @@ import '../models/CreateUser_model.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class SocialAppCubit extends Cubit<SocialAppStates> {
-  SocialAppCubit() : super(SocialAppInitialState());
+  SocialAppCubit() : super(SocialAppInitialState()) {}
 
   static SocialAppCubit get(context) => BlocProvider.of(context);
 
@@ -49,13 +50,16 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   int currentIndex = 0;
   List<Widget> Screens = [
     NewFeed(),
-    Chats(),
-    NewPostScreen(),
     UsersScreen(),
+    NewPostScreen(),
+    Chats(),
     SettingsScreen(),
   ];
 
   void changeBottomNav(int index) {
+    if(index == 3){
+      getAllUsers();
+    }
     if (index == 2) {
       emit(AddNewPostState());
     } else {
@@ -64,7 +68,13 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
     }
   }
 
-  List<String> Titels = ['home', 'chats', 'New Post', 'Users', 'Settings'];
+  List<String> Titels = [
+    'home',
+    'Users',
+    'New Post',
+    'chats',
+    'Settings'
+  ];
 
   File? profileImage;
   File? coverImage;
@@ -212,8 +222,8 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
 
   List<CreatePostModel> posts = [];
   List<String> postId = [];
-  List<int> likes = [];
-  List<bool> isLiked = [];
+  Map<String, int> likes = {};
+  Map<String, bool> isLiked = {};
   Map<String, List<CreateUserModel>> postLikers = {};
   Map<String, List<CreateUserModel>> comments = {};
 
@@ -243,34 +253,23 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
             .collection('likes')
             .snapshots()
             .listen((likesSnapshot) {
-          int likeCount = likesSnapshot.docs.length;
-          bool liked = likesSnapshot.docs.any((doc) => doc.id == model?.uId);
+          likes[id] = likesSnapshot.docs.length;
+          isLiked[id] =
+              likesSnapshot.docs.any((doc) => doc.id == model?.uId);
 
-          int index = postId.indexOf(id);
-          if (index != -1) {
-            if (likes.length > index) {
-              likes[index] = likeCount;
-              isLiked[index] = liked;
-            } else {
-              likes.add(likeCount);
-              isLiked.add(liked);
-            }
-
-
-            List<CreateUserModel> likersList = [];
-            for (var doc in likesSnapshot.docs) {
-              FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(doc.id)
-                  .get()
-                  .then((userDoc) {
-                if (userDoc.exists) {
-                  likersList.add(CreateUserModel.fromJson(userDoc.data()!));
-                  postLikers[id] = likersList;
-                  emit(PostLikeSuccessState());
-                }
-              });
-            }
+          List<CreateUserModel> likersList = [];
+          for (var doc in likesSnapshot.docs) {
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(doc.id)
+                .get()
+                .then((userDoc) {
+              if (userDoc.exists) {
+                likersList.add(CreateUserModel.fromJson(userDoc.data()!));
+                postLikers[id] = likersList;
+                emit(PostLikeSuccessState());
+              }
+            });
           }
         });
       }
@@ -310,14 +309,17 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
         });
       }
     });
-  }
+  }Map<String, List<Map<String, dynamic>>> postComments = {};
+  Map<String, int> commentsCount = {};
 
   void addComment({
     required String postId,
     required String text,
-    required String dateTime,
   }) {
-    if (model == null) return;
+    if (model == null) {
+      print("❌ model is null, can't add comment");
+      return;
+    }
 
     FirebaseFirestore.instance
         .collection('posts')
@@ -326,17 +328,15 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
         .add({
       'uId': model!.uId,
       'name': model!.name,
-      'image': model!.image,
+      'image': model!.image ?? '',
       'text': text,
-      'dateTime': dateTime,
+      'dateTime': FieldValue.serverTimestamp(), // ✅ Timestamp من السيرفر
     }).then((value) {
-      emit(PostCommentSuccessState());
+      emit(AddPostCommentSuccessState());
     }).catchError((error) {
-      emit(PostCommentErrorState(error.toString()));
+      emit(AddPostCommentErrorState(error.toString()));
     });
   }
-
-  Map<String, List<Map<String, dynamic>>> postComments = {};
 
   void getComments(String postId) {
     FirebaseFirestore.instance
@@ -353,21 +353,23 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
       }
 
       postComments[postId] = commentsList;
-      emit(PostCommentSuccessState());
+      commentsCount[postId] = commentsList.length;
+
+      emit(GetPostCommentSuccessState());
     });
   }
 
 
-
-  List<CreateUserModel> allUsers = [];
+  List<CreateUserModel> allUsers =[] ;
 
   void getAllUsers() {
-    allUsers = [];
+  if(allUsers.length == 0)
     emit(SocialGetAllUsersLoadingState());
 
     FirebaseFirestore.instance.collection('users').get().then((value) {
       for (var element in value.docs) {
         if (element.id != model!.uId) {
+
           allUsers.add(CreateUserModel.fromJson(element.data()));
         }
       }
@@ -376,4 +378,78 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
       emit(SocialGetAllUsersErrorState(error.toString()));
     });
   }
+
+  void sendMassage({
+    required String receiverId,
+    required String dateTime,
+    required String text,
+  }) {
+
+
+    MassageModel messageModel = MassageModel(
+      Text: text,
+      senderId: model!.uId, // هنا بتجيب الـ senderId من اليوزر الحالي
+      receiverId: receiverId,
+      dateTime: dateTime,
+
+    );
+
+
+
+    // رسالة عند المرسل
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(model!.uId)
+        .collection('chat')
+        .doc(receiverId)
+        .collection('messages')
+        .add(messageModel.toMap())
+        .then((value) {
+      emit(SendMassageSuccessState());
+      print('****************${messages.first.toString()}********************');
+    }).catchError((error) {
+      emit(SendMassageErrorState(error.toString()));
+    });
+
+    // رسالة عند المستقبل
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(receiverId)
+        .collection('chat')
+        .doc(model!.uId)
+        .collection('messages')
+        .add(messageModel.toMap())
+        .then((value) {
+      emit(SendMassageSuccessState());
+    }).catchError((error) {
+      emit(SendMassageErrorState(error.toString()));
+    });
+  }
+  List<MassageModel> messages = [];
+
+  void getMassage({
+    required String receiverId,
+  }) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(model!.uId)
+        .collection('chat')
+        .doc(receiverId)
+        .collection('messages')
+        .orderBy('dateTime')
+        .snapshots()
+        .listen((event) {
+      messages.clear(); // 🟢 Clear previous data to avoid duplicates
+      for (var element in event.docs) {
+        messages.add(MassageModel.fromJson(element.data()));
+      }
+
+      emit(GetMassageSuccessState());
+
+      if (messages.isNotEmpty) {
+
+      }
+    });
+  }
+
 }

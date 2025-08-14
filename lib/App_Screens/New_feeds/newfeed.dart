@@ -86,7 +86,7 @@ class NewFeed extends StatelessWidget {
                     (index) {
                   final post = cubit.posts[index];
                   final postId = cubit.postId[index];
-                  return _buildPostCard(post, context, postId,index );
+                  return _buildPostCard(post, context, postId, index);
                 },
               ),
             ],
@@ -97,13 +97,13 @@ class NewFeed extends StatelessWidget {
   }
 
   Widget _buildPostCard(
-      CreatePostModel model, BuildContext context, String postId,index) {
+      CreatePostModel model, BuildContext context, String postId, index) {
     var cubit = SocialAppCubit.get(context);
-    final likeCount = cubit.postLikers[postId] ?? 0;
-    final commentCount = cubit.comments[postId]?.length ?? 0;
+    final likeCount = cubit.likes[postId] ?? 0;
+    final commentCount = cubit.postComments[postId]?.length ?? 0;
     final commentController = TextEditingController();
-    final isLiked = (index < cubit.isLiked.length) ? cubit.isLiked[index] : false;
-
+    final isLiked = cubit.isLiked[postId] ?? false;
+    cubit.getComments(postId);
 
 
     return Card(
@@ -118,23 +118,46 @@ class NewFeed extends StatelessWidget {
             padding: const EdgeInsets.all(10.0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundImage: model.image != null && model.image!.isNotEmpty
-                      ? NetworkImage(model.image!)
-                      : AssetImage('assets/default.png') as ImageProvider,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProfileDetailsScreen(userId: model.uId ?? ''),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundImage: model.image != null &&
+                        model.image!.isNotEmpty
+                        ? NetworkImage(model.image!)
+                        : AssetImage('assets/default.png') as ImageProvider,
+                  ),
                 ),
                 SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(model.name ?? '',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    if (model.dateTime != null)
-                      Text(model.dateTime!,
-                          style: TextStyle(
-                              color: Colors.grey[600], fontSize: 12)),
-                  ],
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProfileDetailsScreen(userId: model.uId ?? ''),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(model.name ?? '',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      if (model.dateTime != null)
+                        Text(model.dateTime!,
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 12)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -163,20 +186,19 @@ class NewFeed extends StatelessWidget {
                 Icon(Icons.thumb_up, size: 16, color: Colors.blue),
                 SizedBox(width: 4),
                 InkWell(
-                  child: Text('${cubit.likes[index] ?? 0} Likes'),
-
-                    onTap: () {
+                  child: Text('$likeCount Likes'),
+                  onTap: () {
                     _showLikersSheet(
                         context, cubit.postLikers[postId] ?? [], postId);
                   },
                 ),
                 Spacer(),
                 InkWell(
-                  child: Text('${cubit.comments[index] ?? 0}  Comments',
+                  child: Text('$commentCount Comments',
                       style: TextStyle(fontSize: 13)),
                   onTap: () {
                     _showCommentsSheet(
-                        context, cubit.comments[postId] ?? []);
+                        context, cubit.postComments[postId] ?? []);
                   },
                 ),
               ],
@@ -202,9 +224,11 @@ class NewFeed extends StatelessWidget {
               InkWell(
                 child: _buildActionButton(Icons.comment_outlined, 'Comment'),
                 onTap: () {
+                  cubit.getComments(postId);
                   _showCommentsSheet(
-                      context, cubit.comments[postId] ?? []);
-                },
+                    context,
+                    (cubit.postComments[postId] ?? []) as List<Map<String, dynamic>>,
+                  );                },
               ),
             ],
           ),
@@ -215,11 +239,23 @@ class NewFeed extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: cubit.model?.image != null
-                      ? NetworkImage(cubit.model!.image!)
-                      : AssetImage('assets/default.png') as ImageProvider,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileDetailsScreen(
+                          userId: cubit.model?.uId ?? '',
+                        ),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage: cubit.model?.image != null
+                        ? NetworkImage(cubit.model!.image!)
+                        : AssetImage('assets/default.png') as ImageProvider,
+                  ),
                 ),
                 SizedBox(width: 8),
                 Expanded(
@@ -232,18 +268,17 @@ class NewFeed extends StatelessWidget {
                       suffixIcon: IconButton(
                         icon: Icon(Icons.send, color: Colors.blue),
                         onPressed: () {
-                 if (commentController.text.trim().isNotEmpty) {
-                   cubit.addComment(
-                    postId: postId,
-                      text: commentController.text.trim(),
-                          dateTime: DateTime.now().toIso8601String(),
-    );
+                          if (commentController.text.trim().isNotEmpty) {
+                            cubit.addComment(
+                              postId: postId,
+                              text: commentController.text.trim(),
 
-             cubit.getComments(postId);
+                            );
 
-             commentController.clear();
-                        }
-                        }
+                            cubit.getComments(postId);
+                            commentController.clear();
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -265,7 +300,8 @@ class NewFeed extends StatelessWidget {
           Icon(icon, size: 18, color: iconColor ?? Colors.grey[700]),
           SizedBox(width: 4),
           Text(label,
-              style: TextStyle(fontSize: 14, color: textColor ?? Colors.grey[700])),
+              style: TextStyle(
+                  fontSize: 14, color: textColor ?? Colors.grey[700])),
         ],
       ),
     );
@@ -300,6 +336,16 @@ class NewFeed extends StatelessWidget {
                     itemBuilder: (context, i) {
                       final user = likers[i];
                       return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProfileDetailsScreen(
+                                      userId: user.uId ?? ''),
+                            ),
+                          );
+                        },
                         leading: CircleAvatar(
                           backgroundImage: user.image != null &&
                               user.image!.isNotEmpty
@@ -321,11 +367,12 @@ class NewFeed extends StatelessWidget {
     );
   }
 
-  void _showCommentsSheet(BuildContext context, List comments) {
+  void _showCommentsSheet(BuildContext context, List<Map<String, dynamic>> comments) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       backgroundColor: Colors.white,
       builder: (context) {
         return Container(
@@ -338,15 +385,24 @@ class NewFeed extends StatelessWidget {
             itemBuilder: (context, i) {
               final comment = comments[i];
               return ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileDetailsScreen(
+                        userId: comment['uId'] ?? '',
+                      ),
+                    ),
+                  );
+                },
                 leading: CircleAvatar(
-                  backgroundImage: comment.userImage != null &&
-                      comment.userImage!.isNotEmpty
-                      ? NetworkImage(comment.userImage!)
-                      : AssetImage('assets/default.png')
-                  as ImageProvider,
+                  backgroundImage: (comment['image'] != null &&
+                      comment['image'].toString().isNotEmpty)
+                      ? NetworkImage(comment['image'])
+                      : AssetImage('assets/default.png') as ImageProvider,
                 ),
-                title: Text(comment.userName ?? 'Unknown'),
-                subtitle: Text(comment.text ?? ''),
+                title: Text(comment['name'] ?? 'Unknown'),
+                subtitle: Text(comment['text'] ?? ''),
               );
             },
           )

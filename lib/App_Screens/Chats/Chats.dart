@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shop_pix/App_Screens/ChatsDetailsScreen/Chat_Details.dart';
 import 'package:shop_pix/models/CreateUser_model.dart';
 import '../../APP_Cubit/cubit.dart';
 import '../../APP_Cubit/states.dart';
@@ -16,9 +17,7 @@ class Chats extends StatelessWidget {
         var users = cubit.allUsers;
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text("Chats"),
-          ),
+
           body: Padding(
             padding: const EdgeInsets.all(15.0),
             child: ListView.separated(
@@ -34,9 +33,16 @@ class Chats extends StatelessWidget {
     );
   }
 
-  Widget buildChatItem(CreateUserModel model, BuildContext context) => InkWell(
+  Widget buildChatItem(CreateUserModel model, BuildContext context) =>
+      InkWell(
     onTap: () {
-      // افتح صفحة المحادثة
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              ChatDetailsScreen(userModel: model),
+        ),
+      );
     },
     child: Row(
       children: [
