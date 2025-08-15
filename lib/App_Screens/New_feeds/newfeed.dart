@@ -5,6 +5,8 @@ import 'package:shop_pix/App_Screens/profile_details/profile.dart';
 import '../../APP_Cubit/cubit.dart';
 import '../../APP_Cubit/states.dart';
 import '../../models/CreatePost_model.dart';
+import '../Chats/Chats.dart';
+import '../Search/Search_details.dart';
 
 class NewFeed extends StatelessWidget {
   final commentController = TextEditingController();
@@ -19,7 +21,42 @@ class NewFeed extends StatelessWidget {
 
 
         return Scaffold(
-          backgroundColor: Colors.grey[200],
+          appBar: AppBar(
+            title:  Text(
+             'home'
+
+            ),
+            actions: [
+
+              IconButton(
+                  onPressed: (){
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.search
+                  )
+              ),
+              IconButton(
+                  onPressed: (){
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Chats()),
+
+                    );
+                  },
+                  icon: Icon(Icons.send
+                  )
+              ),
+            ],
+          ),
           body: ListView(
             children: [
               // Banner

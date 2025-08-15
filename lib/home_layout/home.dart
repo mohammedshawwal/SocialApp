@@ -42,48 +42,11 @@ class _HomeLayoutState extends State<HomeLayout> {
 
           }
           return Scaffold(
-              appBar: AppBar(
-                title:  Text(
-                   cubit.Titels[cubit.currentIndex],
 
-                ),
-                actions: [
-
-                  IconButton(
-                      onPressed: (){
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchScreen(),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.search
-                      )
-                  ),
-                  IconButton(
-                      onPressed: (){
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  Chats()),
-
-                        );
-                      },
-                      icon: Icon(Icons.send
-                      )
-                  ),
-                ],
-              ),
               bottomNavigationBar: BottomNavigationBar(
                 elevation: 0,
                   type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.white,
-                  selectedItemColor: Colors.blue,
-                  unselectedItemColor: Colors.grey,
+
                   currentIndex: cubit.currentIndex,
                   onTap: (index)
                   {

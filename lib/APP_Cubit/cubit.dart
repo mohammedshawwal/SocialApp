@@ -60,7 +60,7 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   ];
 
   void changeBottomNav(int index) {
-    if(index == 2){
+    if(index == 2 && allUsers.isEmpty){
       getAllUsers();
     }
     if (index == 1) {
@@ -428,10 +428,13 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
     });
   }
   List<MassageModel> messages = [];
+  bool messagesLoading = true;
 
   void getMassage({
     required String receiverId,
   }) {
+    messagesLoading = true;
+    emit(GetMassageLoadingState());
     FirebaseFirestore.instance
         .collection('users')
         .doc(model!.uId)

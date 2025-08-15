@@ -4,6 +4,7 @@ import 'package:shop_pix/App_Screens/ChatsDetailsScreen/Chat_Details.dart';
 import 'package:shop_pix/models/CreateUser_model.dart';
 import '../../APP_Cubit/cubit.dart';
 import '../../APP_Cubit/states.dart';
+import '../Search/Search_details.dart';
 
 class Chats extends StatelessWidget {
   const Chats({super.key});
@@ -18,8 +19,28 @@ class Chats extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('Tap On Your Fiends To Chat With ....'),
+            title:  Text('Chats'),
+
+
+            actions: [
+
+              IconButton(
+                  onPressed: (){
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.search
+                  )
+              ),
+
+            ],
           ),
+
           body: Padding(
             padding: const EdgeInsets.all(15.0),
             child: ListView.separated(

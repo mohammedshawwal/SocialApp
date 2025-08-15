@@ -30,9 +30,9 @@ void initState() {
       builder: (context, state) {
 
         return Scaffold(
-          backgroundColor: Colors.grey[200],
+          //backgroundColor: Colors.grey[200],
           appBar: AppBar(
-            backgroundColor: Colors.white,
+
             elevation: 1,
             titleSpacing: 0,
             title: Row(
@@ -47,7 +47,7 @@ void initState() {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: Colors.black87,
+
                   ),
                 ),
               ],
@@ -55,11 +55,13 @@ void initState() {
             iconTheme: const IconThemeData(color: Colors.black87),
           ),
           body: ConditionalBuilder(
-            condition: SocialAppCubit.get(context).messages.length>0,
+            condition: SocialAppCubit.get(context).messagesLoading,
             builder: (context) => Column(
               children: [
                 Expanded(
-                  child: ListView.separated(
+                  child:SocialAppCubit.get(context).messages.isEmpty
+                      ? Center(child: Text("Start Chat Now"))
+                      : ListView.separated(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.all(12),
                     itemBuilder: (context, index) {
@@ -75,6 +77,7 @@ void initState() {
                     separatorBuilder: (context, index) =>
                     const SizedBox(height: 8),
                     itemCount: SocialAppCubit.get(context).messages.length,
+
                   ),
                 ),
                 buildMessageInput(context),
@@ -89,7 +92,7 @@ void initState() {
     );
   }
 
-  // رسائل المستقبل
+
   Widget buildMessage(MassageModel model) => Align(
     alignment: Alignment.centerLeft,
     child: Container(
@@ -135,7 +138,7 @@ void initState() {
   Widget buildMessageInput(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     decoration: BoxDecoration(
-      color: Colors.white,
+
       boxShadow: [
         BoxShadow(
           color: Colors.grey.withOpacity(0.1),

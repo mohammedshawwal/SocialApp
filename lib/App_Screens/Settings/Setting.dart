@@ -16,124 +16,129 @@ class SettingsScreen extends StatelessWidget {
         var cubit = SocialAppCubit.get(context);
         var userModel = cubit.model;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // صورة الغلاف والبروفايل
-              SizedBox(
-                height: 210,
-                child: Stack(
-                  alignment: AlignmentDirectional.bottomCenter,
-                  children: [
-                    Align(
-                      alignment: AlignmentDirectional.topCenter,
-                      child: Container(
-                        height: 160,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              topRight: Radius.circular(8)),
-                          image: DecorationImage(
-                            image: NetworkImage('${userModel!.cover}'),
-                            fit: BoxFit.cover,
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Settings'),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // صورة الغلاف والبروفايل
+                SizedBox(
+                  height: 210,
+                  child: Stack(
+                    alignment: AlignmentDirectional.bottomCenter,
+                    children: [
+                      Align(
+                        alignment: AlignmentDirectional.topCenter,
+                        child: Container(
+                          height: 160,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                                topRight: Radius.circular(8)),
+                            image: DecorationImage(
+                              image: NetworkImage('${userModel!.cover}'),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    CircleAvatar(
-                      radius: 63,
-                      backgroundColor:
-                      Theme.of(context).scaffoldBackgroundColor,
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: NetworkImage('${userModel.image}'),
+                      CircleAvatar(
+                        radius: 63,
+                        backgroundColor:
+                        Theme.of(context).scaffoldBackgroundColor,
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundImage: NetworkImage('${userModel.image}'),
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // اسم المستخدم والبروفايل
+                Text(
+                  '${userModel.name}',
+                  style:
+                  const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${userModel.bio}',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodySmall?.color),
+                ),
+                const SizedBox(height: 20),
+
+                // الإحصائيات
+                Row(
+                  children: [
+                    _buildStatItem('Posts', '100'),
+                    _buildStatItem('Photos', '360'),
+                    _buildStatItem('Followers', '10K'),
+                    _buildStatItem('Following', '135'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // أزرار تعديل البروفايل
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {},
+                        child: const Text('Add Photo'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfileScreen(),
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.edit),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 20),
 
-              // اسم المستخدم والبروفايل
-              Text(
-                '${userModel.name}',
-                style:
-                const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '${userModel.bio}',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).textTheme.bodySmall?.color),
-              ),
-              const SizedBox(height: 20),
-
-              // الإحصائيات
-              Row(
-                children: [
-                  _buildStatItem('Posts', '100'),
-                  _buildStatItem('Photos', '360'),
-                  _buildStatItem('Followers', '10K'),
-                  _buildStatItem('Following', '135'),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // أزرار تعديل البروفايل
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      child: const Text('Add Photo'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditProfileScreen(),
-                        ),
-                      );
-                    },
-                    child: const Icon(Icons.edit),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // زرار تغيير الثيم
-              OutlinedButton.icon(
-                onPressed: () {
-                  cubit.changeAppMode();
-                },
-                icon: const Icon(Icons.brightness_6),
-                label: const Text('Change Theme'),
-              ),
-              const SizedBox(height: 10),
-
-              // زرار تسجيل الخروج
-              OutlinedButton.icon(
-                onPressed: () {
-                  cubit.signOut(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.red),
+                // زرار تغيير الثيم
+                OutlinedButton.icon(
+                  onPressed: () {
+                    cubit.changeAppMode();
+                  },
+                  icon: const Icon(Icons.brightness_6),
+                  label: const Text('Change Theme'),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+
+                // زرار تسجيل الخروج
+                OutlinedButton.icon(
+                  onPressed: () {
+                    cubit.signOut(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.logout, color: Colors.red),
+                  label: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

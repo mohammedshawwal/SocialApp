@@ -30,15 +30,25 @@ class MyApp extends StatelessWidget {
           SocialAppCubit()..getUserData()..getPosts(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Social App',
-        debugShowCheckedModeBanner: false,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: SocialAppCubit().isDark ? ThemeMode.dark : ThemeMode.light,
+      child: BlocConsumer<SocialAppCubit, SocialAppStates>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            var cubit = SocialAppCubit.get(context);
+            return MaterialApp(
+              title: 'Social App',
+              debugShowCheckedModeBanner: false,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              themeMode: cubit.isDark ? ThemeMode.dark : ThemeMode
+                  .light,
 
 
-        home: FirebaseAuth.instance.currentUser == null? OnBoardingScreen():HomeLayout(),
+              home: FirebaseAuth.instance.currentUser == null
+                  ? OnBoardingScreen()
+                  : HomeLayout(),
+            );
+
+          }
       ),
     );
   }

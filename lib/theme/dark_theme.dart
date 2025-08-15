@@ -15,9 +15,9 @@ ThemeData darkTheme = ThemeData(
     ),
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Color(0xFF1F1F1F),
+    backgroundColor: Color(0xFF121212),
     selectedItemColor: Colors.blue,
-    unselectedItemColor: Colors.grey,
+    unselectedItemColor: Colors.white,
     elevation: 5,
     type: BottomNavigationBarType.fixed,
   ),

@@ -29,18 +29,18 @@ var boardController = PageController();
   List<BoardingModel> boarding =[
     BoardingModel(
       image: 'assets/onboarding1.png',
-      title: ' Onboard1 title text',
-      body: 'Onboard1 body text',
+      title: 'Connect people around the world',
+      body: 'In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form.',
     ),
     BoardingModel(
       image: 'assets/onboarding2.png',
-      title: ' Onboard2 title text',
-      body: 'Onboard2 body text',
+      title: ' Live your life smarter with us!',
+      body: 'In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form.',
     ),
     BoardingModel(
       image: 'assets/onboarding3.png',
-      title: ' Onboard3 title text',
-      body: 'Onboard3 body text',
+      title: ' Get a new experience of imagination',
+      body: 'In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form.',
     ),
   ];
  bool isLast = false;

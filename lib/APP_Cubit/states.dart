@@ -105,7 +105,7 @@ class SendMassageErrorState extends SocialAppStates{
 
 
 class GetMassageSuccessState extends SocialAppStates{}
-
+class GetMassageLoadingState extends SocialAppStates{}
 class SocialGetMessagesLoadingState extends SocialAppStates{
 
 }

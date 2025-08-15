@@ -54,6 +54,8 @@ dependencies:
   file_picker: ^8.0.3
   firebase_messaging: ^16.0.0
   timeago: ^3.6.0
+  flutter_native_splash: ^2.4.0
+
 
 
 
@@ -116,4 +118,11 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon1.png"
+  image_path: "assets/app_icon.png"
+
+  flutter_native_splash:
+    color: "#ffffff"
+    image: assets/app_icon.png
+    android: true
+    ios: true
+
