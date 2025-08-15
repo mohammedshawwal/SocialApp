@@ -5,12 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_pix/APP_Cubit/cubit.dart';
 import 'package:shop_pix/APP_Cubit/states.dart';
 import 'package:shop_pix/home_layout/home.dart';
-
+import 'package:shop_pix/theme/dark_theme.dart';
+import 'package:shop_pix/theme/light_theme.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'on_boarding/onBoardingScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  timeago.setLocaleMessages('ar', timeago.ArMessages());
+
   runApp(const MyApp());
 }
 
@@ -29,21 +33,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Social App',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          scaffoldBackgroundColor: Colors.white,
-          // bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          //   backgroundColor: Colors.blue,
-          //   elevation: 10,
-          //   selectedItemColor: Colors.white,
-          //   unselectedItemColor: Colors.white70,
-          // ),
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.white,
-            titleTextStyle: TextStyle(color: Colors.blue, fontWeight:FontWeight.bold,fontSize: 20),
-            iconTheme: IconThemeData(color: Colors.blue),
-            elevation: 0
-          ),
-        ),
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: SocialAppCubit().isDark ? ThemeMode.dark : ThemeMode.light,
 
 
         home: FirebaseAuth.instance.currentUser == null? OnBoardingScreen():HomeLayout(),

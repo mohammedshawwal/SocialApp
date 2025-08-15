@@ -110,3 +110,13 @@ class SocialGetMessagesLoadingState extends SocialAppStates{
 
 }
 
+class SocialSearchLoadingState extends SocialAppStates {}
+class SocialSearchSuccessState extends SocialAppStates {}
+class SocialSearchErrorState extends SocialAppStates {
+  final String error;
+  SocialSearchErrorState(this.error);
+}
+
+class SocialLogoutState extends SocialAppStates {}
+class ChangeAppModeState extends SocialAppStates {}
+

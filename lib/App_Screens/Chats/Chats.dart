@@ -17,7 +17,9 @@ class Chats extends StatelessWidget {
         var users = cubit.allUsers;
 
         return Scaffold(
-
+          appBar: AppBar(
+            title: Text('Tap On Your Fiends To Chat With ....'),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(15.0),
             child: ListView.separated(

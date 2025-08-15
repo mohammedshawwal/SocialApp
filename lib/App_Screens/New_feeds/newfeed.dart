@@ -7,12 +7,16 @@ import '../../APP_Cubit/states.dart';
 import '../../models/CreatePost_model.dart';
 
 class NewFeed extends StatelessWidget {
+  final commentController = TextEditingController();
+
   @override
+
   Widget build(BuildContext context) {
     return BlocConsumer<SocialAppCubit, SocialAppStates>(
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = SocialAppCubit.get(context);
+
 
         return Scaffold(
           backgroundColor: Colors.grey[200],
@@ -101,7 +105,6 @@ class NewFeed extends StatelessWidget {
     var cubit = SocialAppCubit.get(context);
     final likeCount = cubit.likes[postId] ?? 0;
     final commentCount = cubit.postComments[postId]?.length ?? 0;
-    final commentController = TextEditingController();
     final isLiked = cubit.isLiked[postId] ?? false;
     cubit.getComments(postId);
 
@@ -370,43 +373,104 @@ class NewFeed extends StatelessWidget {
   void _showCommentsSheet(BuildContext context, List<Map<String, dynamic>> comments) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          height: 500,
-          child: comments.isNotEmpty
-              ? ListView.separated(
-            itemCount: comments.length,
-            separatorBuilder: (_, __) => Divider(height: 1),
-            itemBuilder: (context, i) {
-              final comment = comments[i];
-              return ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileDetailsScreen(
-                        userId: comment['uId'] ?? '',
-                      ),
-                    ),
-                  );
-                },
-                leading: CircleAvatar(
-                  backgroundImage: (comment['image'] != null &&
-                      comment['image'].toString().isNotEmpty)
-                      ? NetworkImage(comment['image'])
-                      : AssetImage('assets/default.png') as ImageProvider,
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (_, controller) {
+            return Column(
+              children: [
+                // Header bar
+                Container(
+                  width: 50,
+                  height: 5,
+                  margin: EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(3),
+                  ),
                 ),
-                title: Text(comment['name'] ?? 'Unknown'),
-                subtitle: Text(comment['text'] ?? ''),
-              );
-            },
-          )
-              : Center(child: Text("No comments yet")),
+                SizedBox(height: 10),
+                Text(
+                  "Comments",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+
+                // Comments list
+                Expanded(
+                  child: comments.isNotEmpty
+                      ? ListView.separated(
+                    controller: controller,
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    itemCount: comments.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 8),
+                    itemBuilder: (context, i) {
+                      final comment = comments[i];
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: (comment['image'] != null &&
+                                comment['image'].toString().isNotEmpty)
+                                ? NetworkImage(comment['image'])
+                                : AssetImage('assets/default.png') as ImageProvider,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  )
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    comment['name'] ?? 'Unknown',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    comment['text'] ?? '',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  )
+                      : Center(
+                    child: Text(
+                      "No comments yet",
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

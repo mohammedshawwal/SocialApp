@@ -3,198 +3,162 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_pix/APP_Cubit/cubit.dart';
 import 'package:shop_pix/APP_Cubit/states.dart';
 import 'package:shop_pix/App_Screens/editProfile_Screen/Edit_Profile.dart';
+import 'package:shop_pix/login/login.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SocialAppCubit,SocialAppStates>(
-      listener: (BuildContext context, SocialAppStates state) {  },
-      builder: (BuildContext context, SocialAppStates state) {
-     var userModel =SocialAppCubit.get(context).model;
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children:
-          [
-          Container(
-            height: 210,
-            child: Stack(
-              alignment: AlignmentDirectional.bottomCenter,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.topCenter,
-                  child: Container(
-                    height: 160,
-                    width: double.infinity,
+    return BlocConsumer<SocialAppCubit, SocialAppStates>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        var cubit = SocialAppCubit.get(context);
+        var userModel = cubit.model;
 
-                  decoration: BoxDecoration(
-
-                    image: DecorationImage(
-                        image:  NetworkImage('${userModel!.cover}'),
-                          fit: BoxFit.cover,
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // صورة الغلاف والبروفايل
+              SizedBox(
+                height: 210,
+                child: Stack(
+                  alignment: AlignmentDirectional.bottomCenter,
+                  children: [
+                    Align(
+                      alignment: AlignmentDirectional.topCenter,
+                      child: Container(
+                        height: 160,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              topRight: Radius.circular(8)),
+                          image: DecorationImage(
+                            image: NetworkImage('${userModel!.cover}'),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-
-                  )
-                  ),
+                      ),
+                    ),
+                    CircleAvatar(
+                      radius: 63,
+                      backgroundColor:
+                      Theme.of(context).scaffoldBackgroundColor,
+                      child: CircleAvatar(
+                        radius: 60,
+                        backgroundImage: NetworkImage('${userModel.image}'),
+                      ),
+                    ),
+                  ],
                 ),
-                CircleAvatar(
-                  radius: 63,
-                  child: CircleAvatar(
-                      radius: 60,
-                      backgroundImage: NetworkImage('${userModel!.image}')
-                  ),
-                ),
-
-
-
-                  ]
-            ),
-          ),
-            SizedBox(height: 10,),
-            Text('${userModel!.name}',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold
               ),
+              const SizedBox(height: 12),
 
-            ),
-            Text('${userModel!.bio}',
-              style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold
+              // اسم المستخدم والبروفايل
+              Text(
+                '${userModel.name}',
+                style:
+                const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
+              Text(
+                '${userModel.bio}',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).textTheme.bodySmall?.color),
+              ),
+              const SizedBox(height: 20),
 
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Row(
-                children:
-                [
+              // الإحصائيات
+              Row(
+                children: [
+                  _buildStatItem('Posts', '100'),
+                  _buildStatItem('Photos', '360'),
+                  _buildStatItem('Followers', '10K'),
+                  _buildStatItem('Following', '135'),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // أزرار تعديل البروفايل
+              Row(
+                children: [
                   Expanded(
-                    child: InkWell(
-                      onTap: (){},
-                      child: Column(
-                        children:
-                        [
-                          Text('Post',
-                            style: TextStyle(
-                                fontSize: 15,
-
-                            ),
-
-                          ),
-                          Text('100',
-                            style: TextStyle(
-                                fontSize: 25,
-
-                            ),
-
-                          ),
-                        ],
-                      ),
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      child: const Text('Add Photo'),
                     ),
                   ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: (){},
-                      child: Column(
-                        children:
-                        [
-                          Text('Photos',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                          Text('360',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: (){},
-                      child: Column(
-                        children:
-                        [
-                          Text('Followers',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                          Text('10K',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: (){},
-                      child: Column(
-                        children:
-                        [
-                          Text('Following',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                          Text('135',
-                            style: TextStyle(
-                                fontSize: 15,
-                            ),
-
-                          ),
-                        ],
-                      ),
-                    ),
+                  const SizedBox(width: 10),
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.edit),
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+
+              // زرار تغيير الثيم
+              OutlinedButton.icon(
+                onPressed: () {
+                  cubit.changeAppMode();
+                },
+                icon: const Icon(Icons.brightness_6),
+                label: const Text('Change Theme'),
+              ),
+              const SizedBox(height: 10),
+
+              // زرار تسجيل الخروج
+              OutlinedButton.icon(
+                onPressed: () {
+                  cubit.signOut(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {},
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14),
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                      onPressed: (){},
-                      child: Text('Add photo')
-
-                  ),
-                ),
-                SizedBox(width: 10,),
-                OutlinedButton(
-                    onPressed: ()
-                    {
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context)=>EditProfileScreen()
-                      )
-                      );
-                    },
-                    child:Icon(Icons.edit)
-
-                ),
-              ],
+            const SizedBox(height: 5),
+            Text(
+              value,
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
-
-
         ),
-      );
-      },
+      ),
     );
   }
 }

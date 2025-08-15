@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:shop_pix/App_Screens/Chats/Chats.dart';
 import 'package:shop_pix/App_Screens/New_Post/New_post.dart';
 import '../APP_Cubit/cubit.dart';
 import '../APP_Cubit/states.dart';
+import '../App_Screens/Search/Search_details.dart';
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -46,14 +48,32 @@ class _HomeLayoutState extends State<HomeLayout> {
 
                 ),
                 actions: [
+
                   IconButton(
-                      onPressed: (){},
-                      icon: Icon(Icons.notifications
+                      onPressed: (){
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.search
                       )
                   ),
                   IconButton(
-                      onPressed: (){},
-                      icon: Icon(Icons.search
+                      onPressed: (){
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Chats()),
+
+                        );
+                      },
+                      icon: Icon(Icons.send
                       )
                   ),
                 ],
@@ -75,10 +95,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                       icon: Icon(Icons.home_filled),
                       label: 'home',
                     ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person),
-                      label: 'users',
-                    ),
+
                     BottomNavigationBarItem(
                       icon: Icon(Icons.post_add),
                       label: 'Post',

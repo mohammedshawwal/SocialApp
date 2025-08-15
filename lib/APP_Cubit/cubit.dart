@@ -15,6 +15,10 @@ import '../models/CreatePost_model.dart';
 import '../models/CreateUser_model.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
+import '../theme/dark_theme.dart';
+import '../theme/light_theme.dart';
+
+
 class SocialAppCubit extends Cubit<SocialAppStates> {
   SocialAppCubit() : super(SocialAppInitialState()) {}
 
@@ -50,17 +54,16 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
   int currentIndex = 0;
   List<Widget> Screens = [
     NewFeed(),
-    UsersScreen(),
     NewPostScreen(),
     Chats(),
     SettingsScreen(),
   ];
 
   void changeBottomNav(int index) {
-    if(index == 3){
+    if(index == 2){
       getAllUsers();
     }
-    if (index == 2) {
+    if (index == 1) {
       emit(AddNewPostState());
     } else {
       currentIndex = index;
@@ -70,7 +73,6 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
 
   List<String> Titels = [
     'home',
-    'Users',
     'New Post',
     'chats',
     'Settings'
@@ -451,5 +453,39 @@ class SocialAppCubit extends Cubit<SocialAppStates> {
       }
     });
   }
+  List<CreateUserModel> searchResults = [];
+  void searchUsers(String query) {
+    emit(SocialSearchLoadingState());
 
+    FirebaseFirestore.instance
+        .collection('users')
+        .where('name', isGreaterThanOrEqualTo: query)
+        .where('name', isLessThanOrEqualTo: query + '\uf8ff')
+        .get()
+        .then((value) {
+      searchResults = value.docs.map((doc) {
+        return CreateUserModel.fromJson(doc.data());
+      }).toList();
+      emit(SocialSearchSuccessState());
+    }).catchError((error) {
+      emit(SocialSearchErrorState(error.toString()));
+    });
+  }
+
+
+  bool isDark = false;
+
+  ThemeData get currentTheme => isDark ? darkTheme : lightTheme;
+  void changeAppMode() {
+    isDark = !isDark;
+    emit(ChangeAppModeState());
+  }
+
+  // تسجيل الخروج
+  Future<void> signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.of(context).pushReplacementNamed('login'); // غيرها لاسم شاشة تسجيل الدخول عندك
+    emit(SocialLogoutState());
+  }
 }
+
